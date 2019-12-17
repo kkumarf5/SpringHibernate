@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+		<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+			<beans:property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+			<beans:property name="url" value="jdbc:oracle:thin:@//database-1.c4weqcvholyb.ap-south-1.rds.amazonaws.com:1521/DATABASE"/>
+			<beans:property name="username" value="admin"/>
+			<beans:property name="password" value="shubham11428"/>
+		</beans:bean>
+		<beans:bean id="hibernateConf" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+			<beans:property name="dataSource" ref="dataSource"/>
+			<beans:property name="annotatedClasses">
+				<beans:list>
+					<beans:value>com.kaushal.entity.Persion</beans:value>
+				</beans:list>
+			</beans:property>
+			<beans:property name="hibernateProperties">
+				<beans:props>
+					<beans:prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</beans:prop>
+					<beans:prop key="hibernate.show_sql">true</beans:prop>
+					<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
+				</beans:props>
+			</beans:property>
+		</beans:bean>
+		<beans:bean id="persionDAO" class="com.kaushal.dao.PersionDAOImpl">
+			<beans:property name="sessionFactory" ref="hibernateConf"/>
+		</beans:bean>
+		<beans:bean id="persionService" class="com.kaushal.service.PersionServiceImpl">
+			<beans:property name="persionDao" ref="persionDAO"/>
+		</beans:bean>
+		<beans:bean id="persionController" class="com.kaushal.controller.PersionController">
+			<beans:property name="persionService" ref="persionService"/>
+		</beans:bean>
+		<context:component-scan base-package="com.kaushal" />
+		<tx:annotation-driven transaction-manager="transactionManager"/>
+		<beans:bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+			<beans:property name="sessionFactory" ref="hibernateConf"/>
+		</beans:bean>
+</beans:beans>
